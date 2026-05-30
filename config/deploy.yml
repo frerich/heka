@@ -47,6 +47,4 @@ env:
     PHX_HOST: static.6.198.105.178.clients.your-server.de
   secret:
     - DATABASE_URL
-
-  secret:
     - SECRET_KEY_BASE
