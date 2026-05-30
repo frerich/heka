@@ -9,7 +9,7 @@ defmodule Heka.Application do
   def start(_type, _args) do
     children = [
       HekaWeb.Telemetry,
-      Heka.Repo,
+      #Heka.Repo,
       {DNSCluster, query: Application.get_env(:heka, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Heka.PubSub},
       # Start a worker by calling: Heka.Worker.start_link(arg)
