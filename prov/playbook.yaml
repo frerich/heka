@@ -86,6 +86,7 @@
       - fail2ban
       - postgresql-client
       - unattended-upgrades
+      update_cache: yes
 
 - name: Install infrastructure software
   hosts: localhost
