@@ -18,6 +18,9 @@ jobs:
         python3 -m venv prov
         prov/bin/pip3 install -r prov/requirements.txt
 
+    - name: Install Bundler
+      run: gem install bundler
+
     - name: Install Kamal
       run: bundle install
 
