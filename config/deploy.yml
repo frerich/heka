@@ -4,12 +4,12 @@ image: frerich/heka
 
 servers:
   web:
-    - 178.105.198.6
+    - 159.69.181.205
 
 accessories:
   postgres:
     image: postgres:18
-    host: 178.105.198.6
+    host: 159.69.181.205
     port: "127.0.0.1:5432:5432"
     env:
       clear:
