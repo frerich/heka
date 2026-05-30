@@ -6,13 +6,12 @@ servers:
   web:
     - 178.105.198.6
 
-healthcheck:
-  port: "4000"
-  path: "/health"
-
 proxy:
   ssl: true
   host: heka.idkfa.site
+  healthcheck:
+    port: "4000"
+    path: "/health"
 
 ssh:
   keys_only: true
