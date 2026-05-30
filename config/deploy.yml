@@ -50,6 +50,5 @@ env:
     - SECRET_KEY_BASE
 
 aliases:
-  bash: app exec -q -p -i --reuse bash
   remote: app exec -q -p -i --reuse "/app/bin/heka remote"
-
+  psql: server exec -q -p -i "psql -h localhost -U heka -d heka"

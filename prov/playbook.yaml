@@ -71,7 +71,7 @@
         groups: remote_servers
         ansible_user: root
 
-- name: Wait for server to be up
+- name: On-server setup
   hosts: remote_servers
   gather_facts: false
   vars:
@@ -79,6 +79,11 @@
   tasks:
   - name: Wait for SSH connection to be available
     ansible.builtin.wait_for_connection:
+
+  - name: Install utilities
+    ansible.builtin.apt:
+      pkg:
+      - postgresql-client
 
 - name: Install infrastructure software
   hosts: localhost
