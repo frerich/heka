@@ -18,11 +18,10 @@ jobs:
         python3 -m venv prov
         prov/bin/pip3 install -r prov/requirements.txt
 
-    - name: Install Bundler
-      run: gem install bundler
-
-    - name: Install Kamal
-      run: bundle install
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4.1'
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
     - name: Bootstrap server for Kamal
       env:
