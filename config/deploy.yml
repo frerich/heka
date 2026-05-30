@@ -13,12 +13,12 @@ accessories:
     port: "127.0.0.1:5432:5432"
     env:
       clear:
-        POSTGRES_DB: heka
         DB_HOST: 127.0.0.1
         DB_PORT: 5432
       secret:
         - POSTGRES_USER
         - POSTGRES_PASSWORD
+        - POSTGRES_DATABASE
     directories:
       - data:/var/lib/postgresql
 
@@ -44,8 +44,9 @@ builder:
 
 env:
   clear:
-    DATABASE_URL: postgres://localhost/dummy
     PHX_HOST: static.6.198.105.178.clients.your-server.de
+  secret:
+    - DATABASE_URL
 
   secret:
     - SECRET_KEY_BASE
