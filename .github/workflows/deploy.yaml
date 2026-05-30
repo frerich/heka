@@ -13,11 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    - name: Install Ansible
-      run: |
-        python3 -m venv prov
-        prov/bin/pip3 install -r prov/requirements.txt
-
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.4.1'
