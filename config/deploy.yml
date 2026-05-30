@@ -10,6 +10,11 @@ proxy:
   ssl: true
   host: heka.idkfa.site
 
+ssh:
+  keys_only: true
+  key_data:
+    - DEPLOY_PRIVATE_SSH_KEY
+
 registry:
   server: localhost:5555
 
