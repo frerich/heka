@@ -71,7 +71,7 @@
         groups: remote_servers
         ansible_user: root
 
-- name: On-server setup
+- name: Hardening system
   hosts: remote_servers
   gather_facts: false
   vars:
@@ -84,6 +84,55 @@
     ansible.builtin.apt:
       pkg:
       - fail2ban
-      - postgresql-client
       - unattended-upgrades
       update_cache: yes
+
+- name: Install database
+  hosts: remote_servers
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    postgresql_config_dir: /etc/postgresql/18/main
+  vars_files:
+    - secrets.enc
+  tasks:
+  - name: Install PostgreSQL
+    ansible.builtin.apt:
+      pkg:
+        - libpq-dev
+        - postgresql
+        - python3-psycopg2
+
+  - name: Accept connections from anywhere
+    ansible.builtin.lineinfile:
+      path: "{{ postgresql_config_dir }}/postgresql.conf"
+      regexp: "^listen_addresses="
+      line: "listen_addresses='*'"
+
+  - name: Grant Docker containers access to host PostgreSQL cluster
+    community.postgresql.postgresql_pg_hba:
+      dest: "{{ postgresql_config_dir }}/pg_hba.conf"
+      contype: host
+      source: 172.17.0.0/24
+      method: "scram-sha-256"
+      create: true
+
+  - name: Restart PostgreSQL to pick up configuration
+    ansible.builtin.systemd_service:
+      name: postgresql.service
+      state: restarted
+
+  - name: Create user
+    community.postgresql.postgresql_user:
+      login_db: postgres
+      name: "{{ postgres_user }}"
+      password: "{{ postgres_password }}"
+    become: true
+    become_user: postgres
+
+  - name: Create database
+    community.postgresql.postgresql_db:
+      name: "{{ postgres_database }}"
+      owner: "{{ postgres_user }}"
+    become: true
+    become_user: postgres
