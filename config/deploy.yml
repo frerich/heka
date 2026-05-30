@@ -9,9 +9,9 @@ servers:
 proxy:
   ssl: true
   host: heka.idkfa.site
+  app_port: 4000
   healthcheck:
-    port: "4000"
-    path: "/health"
+    path: /health
 
 ssh:
   keys_only: true
