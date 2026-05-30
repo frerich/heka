@@ -24,11 +24,6 @@ jobs:
         ruby-version: '3.4.1'
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
-    - name: Bootstrap server for Kamal
-      env:
-        ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-      run: bundle exec kamal server bootstrap
-
     - name: Deploy
       env:
         ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}

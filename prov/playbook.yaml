@@ -79,3 +79,13 @@
   tasks:
   - name: Wait for SSH connection to be available
     ansible.builtin.wait_for_connection:
+
+- name: Install infrastructure software
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+    - secrets.enc
+  tasks:
+    - name: Install Kamal dependencies
+      ansible.builtin.command: kamal -c ../config/deploy.yml server bootstrap
