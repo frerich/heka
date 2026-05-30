@@ -1,0 +1,81 @@
+- name: Provision Hetzner resources
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+    - secrets.enc
+
+  tasks:
+    - name: Register SSH key
+      hcloud_ssh_key:
+        api_token: "{{ hcloud_token }}"
+        name: admin_ssh_key
+        public_key: "{{ deploy_ssh_public_key }}"
+      register: ssh_key
+
+    - name: Setup firewall
+      hetzner.hcloud.firewall:
+        api_token: "{{ hcloud_token }}"
+        name: firewall
+        rules:
+          - description: allow SSH from anywhere
+            direction: in
+            protocol: tcp
+            source_ips:
+              - 0.0.0.0/0
+              - ::/0
+            port: 22
+          - description: allow HTTP for Let's Encrypt validation and HTTP->HTTPS redirects
+            direction: in
+            protocol: tcp
+            source_ips:
+              - 0.0.0.0/0
+              - ::/0
+            port: 80
+          - description: allow HTTPS from anywhere
+            direction: in
+            protocol: tcp
+            source_ips:
+              - 0.0.0.0/0
+              - ::/0
+            port: 443
+        state: present
+
+    - name: Create server
+      register: server
+      hcloud_server:
+        api_token: "{{ hcloud_token }}"
+        firewalls:
+        - firewall
+        name: server
+        server_type: cx23
+        image: ubuntu-24.04
+        location: fsn1
+        state: present
+        ssh_keys:
+          - "{{ ssh_key.hcloud_ssh_key.id }}"
+
+    - ansible.builtin.debug:
+        var: server.hcloud_server.ipv4_address
+
+    - name: Write server private SSH key to temporary file
+      copy:
+        dest: "/tmp/server_priv_key"
+        mode: "0600"
+        content: "{{ deploy_ssh_private_key }}"
+
+    - name: Add new server to in-memory inventory
+      add_host:
+        name: "{{ server.hcloud_server.ipv4_address }}"
+        ansible_ssh_private_key_file: "/tmp/server_priv_key"
+        groups: remote_servers
+        ansible_user: root
+
+- name: Wait for server to be up
+  hosts: remote_servers
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.12
+  tasks:
+  - name: Wait for SSH connection to be available
+    ansible.builtin.wait_for_connection:
