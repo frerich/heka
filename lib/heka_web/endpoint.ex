@@ -50,6 +50,18 @@ defmodule HekaWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
+  plug :health_check
   plug Plug.Session, @session_options
   plug HekaWeb.Router
+
+  defp health_check(%Plug.Conn{path_info: ["health"]} = conn, _opts) do
+    conn
+    |> put_resp_content_type("text/plain")
+    |> send_resp(200, "OK")
+    |> halt()
+  end
+
+  defp health_check(conn, _opts) do
+    conn
+  end
 end
