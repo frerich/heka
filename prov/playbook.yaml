@@ -83,7 +83,9 @@
   - name: Install utilities
     ansible.builtin.apt:
       pkg:
+      - fail2ban
       - postgresql-client
+      - unattended-upgrades
 
 - name: Install infrastructure software
   hosts: localhost
