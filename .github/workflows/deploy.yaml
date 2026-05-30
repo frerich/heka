@@ -26,4 +26,4 @@ jobs:
     - name: Deploy
       env:
         ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-      run: bundle exec kamal deploy
+      run: bundle exec kamal setup

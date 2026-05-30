@@ -87,13 +87,3 @@
       - postgresql-client
       - unattended-upgrades
       update_cache: yes
-
-- name: Install infrastructure software
-  hosts: localhost
-  connection: local
-  gather_facts: False
-  vars_files:
-    - secrets.enc
-  tasks:
-    - name: Install Kamal dependencies
-      ansible.builtin.command: kamal -c ../config/deploy.yml server bootstrap
