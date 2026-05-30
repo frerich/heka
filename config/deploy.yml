@@ -24,5 +24,8 @@ builder:
     type: gha
 
 env:
+  clear:
+    DATABASE_URL: postgres://localhost/dummy
+
   secret:
     - SECRET_KEY_BASE
