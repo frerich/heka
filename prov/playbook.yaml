@@ -55,8 +55,36 @@
         ssh_keys:
           - "{{ ssh_key.hcloud_ssh_key.id }}"
 
+    - name: Create DNS zone
+      hetzner.hcloud.zone:
+        api_token: "{{ hcloud_token }}"
+        mode: primary
+        name: idkfa.site
+        state: present
+        ttl: 10800
+
+    - name: Configure A record for server
+      community.dns.hetzner_dns_record:
+        hetzner_api_token: '{{ hcloud_token }}'
+        state: present
+        zone_name: idkfa.site
+        type: A
+        prefix: heka
+        value: "{{ server.hcloud_server.ipv4_address }}"
+        ttl: 3600
+
     - ansible.builtin.debug:
-        var: server.hcloud_server.ipv4_address
+        var: server.hcloud_server
+
+    - name: Configure AAAA record for server
+      community.dns.hetzner_dns_record:
+        hetzner_api_token: '{{ hcloud_token }}'
+        state: present
+        zone_name: idkfa.site
+        type: AAAA
+        prefix: heka
+        value: "{{ server.hcloud_server.ipv6 | replace('/64', '') }}"
+        ttl: 3600
 
     - name: Write server private SSH key to temporary file
       copy:
