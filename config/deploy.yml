@@ -23,7 +23,7 @@ accessories:
       - data:/var/lib/postgresql
 
 proxy:
-  ssl: true
+  ssl: false
   host: heka.idkfa.site
   app_port: 4000
   healthcheck:
