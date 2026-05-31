@@ -28,9 +28,6 @@ proxy:
   app_port: 4000
   healthcheck:
     path: /health
-  run:
-    options:
-      command: ["--tls-staging"]
 
 ssh:
   keys_only: true
