@@ -73,9 +73,6 @@
         value: "{{ server.hcloud_server.ipv4_address }}"
         ttl: 3600
 
-    - ansible.builtin.debug:
-        var: server.hcloud_server
-
     - name: Configure AAAA record for server
       community.dns.hetzner_dns_record:
         hetzner_api_token: '{{ hcloud_token }}'
