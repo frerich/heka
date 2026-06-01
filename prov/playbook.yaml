@@ -4,6 +4,8 @@
   gather_facts: False
   vars_files:
     - secrets.enc
+  vars:
+    postgresql_config_dir: /etc/postgresql/18/main
 
   tasks:
     - name: Register SSH key
@@ -98,14 +100,45 @@
             ansible_ssh_private_key_file: "/tmp/server_priv_key"
             ansible_user: root
 
-        - name: Install utilities
+        - name: Install required packages
           delegate_to: "{{ server.hcloud_server.ipv4_address }}"
           ansible.builtin.apt:
             pkg:
               - fail2ban
-              - postgresql-client
+              - postgresql
               - unattended-upgrades
             update_cache: yes
+
+        - name: Let PostreSQL listen on all addresses
+          delegate_to: "{{ server.hcloud_server.ipv4_address }}"
+          ansible.builtin.lineinfile:
+            path: "{{ postgresql_config_dir }}/postgresql.conf"
+            regexp: "^listen_addresses="
+            line: "listen_addresses='*'"
+
+        - name: Grant Docker containers access to host PostgreSQL cluster
+          delegate_to: "{{ server.hcloud_server.ipv4_address }}"
+          ansible.builtin.lineinfile:
+            path: "{{ postgresql_config_dir }}/pg_hba.conf"
+            line: "host\tall\tall\t172.18.0.0/24\tscram-sha-256"
+
+        - name: Restart PostgreSQL to pick up configuration
+          delegate_to: "{{ server.hcloud_server.ipv4_address }}"
+          ansible.builtin.systemd_service:
+            name: postgresql.service
+            state: restarted
+
+        - name: Create PostgreSQL user
+          delegate_to: "{{ server.hcloud_server.ipv4_address }}"
+          ansible.builtin.shell: psql -d postgres -c "CREATE USER {{ postgres_user }} WITH PASSWORD '{{ postgres_password }}'" || true
+          become: true
+          become_user: postgres
+
+        - name: Create PostgreSQL database
+          delegate_to: "{{ server.hcloud_server.ipv4_address }}"
+          ansible.builtin.shell: psql -d postgres -c "CREATE DATABASE {{ postgres_database }} OWNER {{ postgres_user }}" || true
+          become: true
+          become_user: postgres
 
       always:
         - name: Remove server private SSH key
