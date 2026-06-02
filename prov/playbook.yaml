@@ -120,7 +120,7 @@
           delegate_to: "{{ server.hcloud_server.ipv4_address }}"
           ansible.builtin.lineinfile:
             path: "{{ postgresql_config_dir }}/pg_hba.conf"
-            line: "host\tall\tall\t172.18.0.0/24\tscram-sha-256"
+            line: "host\tall\tall\t172.17.0.0/24\tscram-sha-256"
 
         - name: Restart PostgreSQL to pick up configuration
           delegate_to: "{{ server.hcloud_server.ipv4_address }}"
