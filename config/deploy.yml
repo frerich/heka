@@ -17,6 +17,7 @@ proxy:
     path: /health
 
 ssh:
+  user: deploy
   keys_only: true
   key_data:
     - DEPLOY_PRIVATE_SSH_KEY

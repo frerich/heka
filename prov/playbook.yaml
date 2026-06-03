@@ -4,8 +4,12 @@
   gather_facts: False
   vars_files:
     - secrets.enc
+
   vars:
     postgresql_config_dir: /etc/postgresql/18/main
+    accounts:
+    - { name: "deploy", authorized_key: "{{ deploy_ssh_public_key }}" }
+    - { name: "frerich", authorized_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJrReLOi+JRRLiFRCEfxCV/3fPAFnRo5SBJtYvVfq2Dh frerich@MacBook-Air.fritz.box" }
 
   tasks:
     - name: Register SSH key
@@ -100,13 +104,29 @@
             ansible_ssh_private_key_file: "/tmp/server_priv_key"
             ansible_user: root
 
-        - name: Register additional public SSH keys
+        - name: Add user accounts
+          delegate_to: "{{ server.hcloud_server.ipv4_address }}"
+          ansible.builtin.user:
+            name: "{{ item.name }}"
+            groups:
+            - sudo
+            - docker
+          loop: "{{ accounts }}"
+
+        - name: Setup authorized_keys
+          delegate_to: "{{ server.hcloud_server.ipv4_address }}"
+          ansible.posix.authorized_key:
+            user: "{{ item.name }}"
+            key: "{{ item.authorized_key }}"
+          loop: "{{ accounts }}"
+
+        - name: Enable passwordless sudo
           delegate_to: "{{ server.hcloud_server.ipv4_address }}"
           ansible.builtin.lineinfile:
-            path: /root/.ssh/authorized_keys
-            line: "{{ item }}"
-          loop:
-            - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJrReLOi+JRRLiFRCEfxCV/3fPAFnRo5SBJtYvVfq2Dh frerich@MacBook-Air.fritz.box"
+            dest: /etc/sudoers
+            regexp: '^%sudo'
+            line: "%sudo ALL=(ALL) NOPASSWD: ALL "
+            state: present
 
         - name: Install required packages
           delegate_to: "{{ server.hcloud_server.ipv4_address }}"
